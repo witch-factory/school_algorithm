@@ -25,7 +25,39 @@ int my_element_score_compare(const void *a, const void *b){
     }
 }
 
-void qsort_orig(void*, size_t, size_t, _Cmpfun*);
+void qsort_orig(void* array, size_t n, size_t size, _Cmpfun* cmp){
+    char* pivot;
+
+    if(n>1){
+        size_t left=0;
+        size_t right=n-1;
+        //끝 인덱스를 가리킨다
+
+        char* left_pointer=(char*)array;
+        char* right_pointer=left_pointer+size*right;
+        pivot=left_pointer;
+        //이 메모리를 ELEMENT로 읽을 것. 맨 왼쪽을 pivot으로 지정한다
+        ELEMENT* buf;
+        buf=(ELEMENT*)malloc(size);
+        for(;left_pointer<right_pointer;left_pointer+=size){
+            if((*cmp)(left_pointer, right_pointer)<0){
+                memcpy(buf, left_pointer, size);
+                memcpy(left_pointer, right_pointer, size);
+                memcpy(right_pointer, buf, size);
+                //SWAP
+                pivot+=size;
+            }
+        }
+        memcpy(buf, right_pointer, size);
+        memcpy(right_pointer, pivot, size);
+        memcpy(pivot, buf, size);
+
+        qsort_orig(array, (pivot-left_pointer)/size, size, cmp);
+        qsort_orig(pivot+size, (right_pointer-pivot)/size, size, cmp);
+    }
+
+}
+
 void qsort_median_insert(void*, size_t, size_t, _Cmpfun*);
 void qsort_median_insert_iter(void*, size_t, size_t, _Cmpfun*);
 
@@ -60,3 +92,4 @@ int main(){
 
     return 0;
 }
+
